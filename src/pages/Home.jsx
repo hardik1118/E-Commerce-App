@@ -12,87 +12,126 @@ import Typography from "@mui/material/Typography";
 import { useTheme } from "@emotion/react";
 import Rating from "@mui/material/Rating";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../features/cartSlice";
+import { fetchAllProducts } from "../features/productSlice";
+import { useSearchParams } from "react-router-dom";
 
 function Home() {
-  const [products, setProducts] = useState([]);
+  const allProducts = useSelector((state) => state.products);
+  const { value: products, loading } = allProducts ?? {};
   const theme = useTheme();
-  async function fetchAllProducts() {
-    const res = await fetch("https://fakestoreapi.com/products");
-    const result = await res.json();
-    setProducts(result);
-  }
+  const dispatch = useDispatch();
+  const [searchParam] = useSearchParams();
+  const category = searchParam.get("category");
+  const searchTerm = searchParam.get("searchTerm");
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAllProducts();
-  }, []);
+    if (!products?.length) {
+      dispatch(fetchAllProducts());
+    }
+  });
+
+  function addProductToCart(product) {
+    dispatch(addToCart({ product, quantity: 1 }));
+  }
+
+  let filteredProducts =
+    category && category !== "all"
+      ? products?.filter((prod) => prod.category === category)
+      : products;
+
+
+  filteredProducts = searchTerm
+    ? filteredProducts?.filter((prod) => {
+        return prod.title.toLowerCase().includes(searchTerm.toLowerCase());
+      })
+    : filteredProducts;
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Grid container spacing={4}>
-        {products.map(({ title, id, price, description, rating, image }) => {
-          return (
-            <Grid item xs={12} sm={6} md={3} key={id}>
-              <Card
-                sx={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <CardMedia
-                  component="img"
+        {filteredProducts?.map(
+          ({ title, id, price, description, rating, image }) => {
+            return (
+              <Grid item xs={12} sm={6} md={3} key={id}>
+                <Card
                   sx={{
-                    alignSelf: "center",
-                    width: theme.spacing(30),
-                    height: theme.spacing(30),
-                    objectFit: "contain",
-                    pt: theme.spacing(),
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
-                  image={image}
-                  alt={title}
-                />
-                <CardContent>
-                  <Typography
-                    gutterBottom
-                    variant="h5"
-                    component="h2"
+                >
+                  <CardMedia
+                    component="img"
                     sx={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: "1",
-                      WebkitBoxOrient: "vertical",
+                      alignSelf: "center",
+                      width: theme.spacing(30),
+                      height: theme.spacing(30),
+                      objectFit: "contain",
+                      pt: theme.spacing(),
                     }}
-                  >
-                    {title}
-                  </Typography>
-                  <Typography
-                    color="text.secondary"
-                    paragraph
-                    sx={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: "2",
-                      WebkitBoxOrient: "vertical",
-                    }}
-                  >
-                    {description}
-                  </Typography>
-                  <Typography paragraph fontSize="large">
-                    ${price}
-                  </Typography>
-                  <Rating value={rating?.rate} precision={0.5} readOnly />
-                </CardContent>
-                <CardActions sx={{ alignSelf: "center" }}>
-                  <Button size="large" variant="contained">
-                    <AddShoppingCartIcon /> Add to cart
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          );
-        })}
+                    image={image}
+                    alt={title}
+                  />
+                  <CardContent>
+                    <Typography
+                      gutterBottom
+                      variant="h5"
+                      component="h2"
+                      sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: "1",
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {title}
+                    </Typography>
+                    <Typography
+                      color="text.secondary"
+                      paragraph
+                      sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: "2",
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {description}
+                    </Typography>
+                    <Typography paragraph fontSize="large">
+                      ${price}
+                    </Typography>
+                    <Rating value={rating?.rate} precision={0.5} readOnly />
+                  </CardContent>
+                  <CardActions sx={{ alignSelf: "center" }}>
+                    <Button
+                      size="large"
+                      variant="contained"
+                      onClick={() =>
+                        addProductToCart({
+                          title,
+                          id,
+                          price,
+                          description,
+                          rating,
+                          image,
+                        })
+                      }
+                    >
+                      <AddShoppingCartIcon /> Add to cart
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            );
+          }
+        )}
       </Grid>
     </Container>
   );
