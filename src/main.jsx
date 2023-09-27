@@ -8,9 +8,12 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import store from "./store";
 import { Provider } from "react-redux";
+import AuthProvider from "./firebase/Auth.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <Provider store={store}>
-    <App />
-  </Provider>
+  <AuthProvider>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </AuthProvider>
 );

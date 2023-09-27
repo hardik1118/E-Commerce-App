@@ -7,13 +7,34 @@ export const cartSlice = createSlice({
   },
   reducers: {
     addToCart: (state, action) => {
-      console.log(action);
-      state.value.push(action.payload);
+      const { product, quantity = 1 } = action.payload;
+      const item = state.value.find(
+        ({ product: prod }) => prod.id === product.id
+      );
+      if (item) {
+        item.quantity += quantity;
+      } else {
+        state.value.push(action.payload);
+      }
+    },
+    removeFromCart: (state, action) => {
+      const { product } = action.payload;
+      const index = state.value.findIndex(
+        ({ product: prod }) => prod.id === product.id
+      );
+      if (index > -1) {
+        const item = state.value[index];
+        if (item.quantity === 1) {
+          state.value.splice(index, 1);
+        } else {
+          item.quantity -= 1;
+        }
+      }
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addToCart } = cartSlice.actions;
+export const { addToCart, removeFromCart } = cartSlice.actions;
 
 export default cartSlice.reducer;
