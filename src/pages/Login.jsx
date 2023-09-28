@@ -8,11 +8,13 @@ import {
   TextField,
   FormControl,
   Button,
+  Grid,
 } from "@mui/material";
 import React from "react";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useAuth } from "../firebase/Auth";
 import { useNavigate } from "react-router-dom";
+import Link from "@mui/material/Link";
 
 export default function Login() {
   const theme = useTheme();
@@ -84,6 +86,13 @@ export default function Login() {
             Sign In
           </Button>
         </form>
+        <Grid container justifyContent={"flex-end"}>
+          <Grid item>
+            <Link variant="body2" href="/register">
+              New User? Sign Up
+            </Link>
+          </Grid>
+        </Grid>
       </Box>
     </Container>
   );

@@ -13,6 +13,7 @@ import Checkout from "./pages/Checkout";
 import { useAuth } from "./firebase/Auth";
 import { useNavigate } from "react-router-dom";
 import { Navigate } from "react-router-dom";
+import Register from "./pages/Register";
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -41,6 +42,7 @@ function App() {
           />
         </Route>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </>
     )
   );
